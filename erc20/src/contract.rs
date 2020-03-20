@@ -366,6 +366,7 @@ fn is_valid_symbol(symbol: &str) -> bool {
     return true;
 }
 
+// TO BE DUBUGGED
 // fn only_owner<S: Storage>(
 //     store: &mut S,
 //     env: Env,
@@ -375,7 +376,7 @@ fn is_valid_symbol(symbol: &str) -> bool {
 //     assert_eq!(owner_address_raw == &env.message.signer);
 // }
 
-
+// TO BE DUBUGGED
 pub fn is_equal(address1: &CanonicalAddr, address2: &CanonicalAddr) -> Result<()>{
     if address1 != address2  {
         return contract_err("Not equal")
@@ -383,6 +384,7 @@ pub fn is_equal(address1: &CanonicalAddr, address2: &CanonicalAddr) -> Result<()
     Ok(())
 }
 
+// TO BE DUBUGGED
 fn only_owner<S: Storage, A: Api>(
     deps: &mut Extern<S, A>,
     _env: Env
@@ -396,6 +398,7 @@ fn only_owner<S: Storage, A: Api>(
     }
 }
 
+// TO BE DUBUGGED
 // fn transfer_ownership<S: Storage>(
 //     store: &mut S,
 //     env: Env,
@@ -419,6 +422,7 @@ fn only_owner<S: Storage, A: Api>(
 //     Ok(());
 // }
 
+// TO BE DUBUGGED
 // fn mintToken<S: Storage>(
 //     store: &mut S,
 //     amount: &str,
