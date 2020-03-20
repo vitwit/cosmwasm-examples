@@ -21,6 +21,7 @@ pub const PREFIX_ALLOWANCES: &[u8] = b"allowances";
 
 pub const KEY_CONSTANTS: &[u8] = b"constants";
 pub const KEY_TOTAL_SUPPLY: &[u8] = b"total_supply";
+pub const KEY_OWNER: &[u8] = b"owner";
 
 pub fn init<S: Storage, A: Api>(
     deps: &mut Extern<S, A>,
@@ -58,6 +59,7 @@ pub fn init<S: Storage, A: Api>(
     })?;
     config_store.set(KEY_CONSTANTS, &constants);
     config_store.set(KEY_TOTAL_SUPPLY, &total_supply.to_be_bytes());
+    config_store.set(KEY_OWNER, &_env.message.signer.as_slice());
 
     Ok(Response::default())
 }
@@ -363,3 +365,86 @@ fn is_valid_symbol(symbol: &str) -> bool {
 
     return true;
 }
+
+// fn only_owner<S: Storage>(
+//     store: &mut S,
+//     env: Env,
+// ) -> () {
+//     let mut config_store = PrefixedStorage::new(PREFIX_CONFIG, store);
+//     let mut owner_address_raw = config_store.get(KEY_OWNER);
+//     assert_eq!(owner_address_raw == &env.message.signer);
+// }
+
+
+pub fn is_equal(address1: &CanonicalAddr, address2: &CanonicalAddr) -> Result<()>{
+    if address1 != address2  {
+        return contract_err("Not equal")
+    }
+    Ok(())
+}
+
+fn only_owner<S: Storage, A: Api>(
+    deps: &mut Extern<S, A>,
+    _env: Env
+) -> () {
+    let mut config_store = PrefixedStorage::new(PREFIX_CONFIG, &mut deps.storage);
+    let mut owner_address_raw = config_store.get(KEY_OWNER);
+    let sender_address_raw = &_env.message.signer;
+    match is_equal(sender_address_raw, owner_address_raw) {
+        Ok(expr) => {},
+        Err(_) => panic!("Not Owner"),
+    }
+}
+
+// fn transfer_ownership<S: Storage>(
+//     store: &mut S,
+//     env: Env,
+//     new_owner: &CanonicalAddr,
+// ) -> Result<()> {
+//     only_owner(store, env);
+//     let mut config_store = PrefixedStorage::new(PREFIX_CONFIG, store);
+//     let mut owner_address_raw = config_store.get(KEY_OWNER);
+//     let mut owner_balance = read_balance(&mut store, owner_address_raw)?;
+//     let mut new_owner_balance = read_balance(&mut store, new_owner)?;
+//     new_owner_balance += owner_address_raw;
+//     owner_balance = 0;
+
+//     let mut balances_store = PrefixedStorage::new(PREFIX_BALANCES, &mut store);
+//     balances_store.set(new_owner.as_slice(), &new_owner_balance.to_be_bytes());
+//     balances_store.set(owner_address_raw.as_slice(), &owner_balance.to_be_bytes());
+
+//     let mut config_store = PrefixedStorage::new(PREFIX_CONFIG, store);
+//     config_store.set(KEY_OWNER, new_owner);
+
+//     Ok(());
+// }
+
+// fn mintToken<S: Storage>(
+//     store: &mut S,
+//     amount: &str,
+// ) -> Result<()>{
+//     only_owner(store, env);
+
+//     let mut config_store = PrefixedStorage::new(PREFIX_CONFIG, store);
+//     let mut owner_address_raw = config_store.get(KEY_OWNER);
+//     let mut owner_balance = read_balance(&mut store, owner_address_raw)?;
+//     let amount_raw = parse_u128(amount)?;
+
+//     owner_balance += amount_raw;
+
+//     let mut balances_store = PrefixedStorage::new(PREFIX_BALANCES, &mut store);
+//     balances_store.set(owner_address_raw.as_slice(), &owner_balance.to_be_bytes());
+
+//     let data = config_store
+//         .get(KEY_TOTAL_SUPPLY)
+//         .expect("no decimals data stored");
+//     let mut total_supply = bytes_to_u128(&data).unwrap();
+
+//     total_supply -= amount_raw;
+
+//     config_store.set(KEY_TOTAL_SUPPLY, &total_supply.to_be_bytes());
+
+//     perform_transfer(store, 0, owner_address_raw, amount_raw);
+
+//     Ok(());
+// }
